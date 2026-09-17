@@ -16,7 +16,7 @@ set -euo pipefail
 revision=$1
 remote=$2
 root=/opt/agentd-x-adapter
-test -s /etc/agentd-x-adapter.env || { echo 'Provision /etc/agentd-x-adapter.env first.' >&2; exit 1; }
+sudo test -s /etc/agentd-x-adapter.env || { echo 'Provision /etc/agentd-x-adapter.env first.' >&2; exit 1; }
 if ! test -d "$root/.git"; then
   sudo mkdir -p "$root"
   sudo chown "$(id -un):$(id -gn)" "$root"
