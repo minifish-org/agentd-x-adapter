@@ -1,0 +1,37 @@
+[package]
+name = "agentd-x-adapter"
+version = "0.1.0"
+edition = "2021"
+license = "AGPL-3.0-only"
+description = "Owner-only X mention and delivery-outbox adapter for agentd"
+
+[dependencies]
+anyhow = "1"
+base64 = "0.22"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4", features = ["derive"] }
+fs2 = "0.4"
+hmac = "0.12"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha1 = "0.10"
+thiserror = "2"
+tokio = { version = "1", features = ["rt", "macros", "signal", "time", "net"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+url = "2"
+uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+axum = "0.7"
+tempfile = "3"
+
+[profile.release]
+lto = "thin"
+strip = true
+
+[profile.dev]
+debug = "line-tables-only"

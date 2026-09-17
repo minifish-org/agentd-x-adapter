@@ -1,0 +1,36 @@
+[Unit]
+Description=agentd X mention and delivery-outbox adapter
+After=network-online.target tailscaled.service
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+DynamicUser=yes
+StateDirectory=agentd-x-adapter
+StateDirectoryMode=0700
+WorkingDirectory=/var/lib/agentd-x-adapter
+EnvironmentFile=/etc/agentd-x-adapter.env
+ExecStart=/opt/agentd-x-adapter/bin/current run
+Restart=on-failure
+RestartSec=30
+TimeoutStopSec=90
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+MemoryMax=384M
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target
