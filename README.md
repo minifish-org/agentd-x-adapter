@@ -87,9 +87,11 @@ cargo run --locked -- run
 ```
 
 `register` creates tenant `x-agentd` and agent `x-bot` only if absent; it preserves
-existing agents. The default agent uses `local/chat`, no tools, no rolling context
-(each request contains its X context), a 180-second timeout and 512 output tokens.
-Explicit memory or web tools can be added later after validating the public bot.
+existing agents. The default agent uses `local/chat`, with read-only clock, public-web
+search and fetch tools. It has no rolling context (each request contains its X
+context), a 300-second timeout, four model steps and 512 output tokens per step.
+The model gateway must support native function calls and tool-result messages.
+Memory, artifacts, schedules, MCP and sandbox tools remain disabled.
 
 Mention `@agentd_ai` from `@jackysp` **after** starting the adapter. In preview mode,
 stop the process and inspect:
