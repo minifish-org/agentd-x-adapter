@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-host=${1:-singapore}
+test "$#" -eq 1 || { echo "Usage: $0 SSH_TARGET" >&2; exit 2; }
+host=$1
+case "$host" in -*|*[!A-Za-z0-9._@-]*|'') echo "Invalid SSH target" >&2; exit 2 ;; esac
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 test -z "$(git status --porcelain)" || { echo 'Commit and push changes before deploying.' >&2; exit 1; }

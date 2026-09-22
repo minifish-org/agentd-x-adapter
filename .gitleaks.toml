@@ -1,0 +1,10 @@
+title = "agentd-x-adapter secret scan"
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Published OAuth 1.0 Appendix A.5 test tokens, src/oauth.rs only"
+condition = "AND"
+paths = ['''^src/oauth\.rs$''']
+regexTarget = "secret"
+regexes = ['''^(nnch734d00sl2jdk|pfkkdhi9sl3r4s00)$''']

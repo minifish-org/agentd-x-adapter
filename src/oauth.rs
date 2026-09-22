@@ -79,6 +79,8 @@ mod tests {
     use super::*;
     #[test]
     fn published_oauth_photo_example() {
+        // Public OAuth 1.0 Appendix A.5 test vector, not live credentials.
+        // https://oauth.net/core/1.0/#anchor30
         let c = Credentials {
             key: "dpf43f3p2l4k3l03".into(),
             secret: "kd94hf93k423kf44".into(),

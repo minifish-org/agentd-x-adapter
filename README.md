@@ -2,9 +2,8 @@
 
 A Rust X (Twitter) adapter for [agentd](https://github.com/minifish-org/agentd).
 Only one configured owner can trigger the bot by explicitly mentioning it.
-Designed for `singapore` (AWS Lightsail), calling agentd on `minifish-lab`
-through Tailscale. No public inbound port, webhook server or model process is
-needed on Lightsail.
+Runs on a small server, calling a private agentd endpoint directly or through
+Tailscale. No public inbound port, webhook server or local model process is needed.
 
 ```text
 X mentions → owner admission → reply ancestors + quoted posts + images
@@ -45,7 +44,7 @@ agentd delivery outbox → X reply → delivery acknowledgment
 
 Rust 1.94; X developer app with Read and write OAuth 1.0a credentials; an agentd
 HTTP endpoint; and the companion agentd inline-image change documented below.
-Keep the repository's existing AGPL-3.0 license.
+Licensed under AGPL-3.0-only; see [LICENSE](LICENSE).
 
 The new agentd input contract is:
 
@@ -58,13 +57,17 @@ The new agentd input contract is:
 }
 ```
 
-The companion patch in the sibling agentd repository forwards images as real
-`image_url` parts and preserves them in context. **An older agentd silently
-serializes images as text and cannot see them. Deploy that patch first.**
+Use agentd commit [`8207842`](https://github.com/minifish-org/agentd/commit/8207842351f7773cc1cb38a6fe0632729f4cca3e)
+or a later compatible revision. It forwards images as real `image_url` parts
+and preserves them in context. **Older agentd builds can serialize images as
+text instead; upgrade before using image input.**
 Then test vision through tailgate's `local/chat`; a model name alone is not proof
 that the deployed inference server has a working vision projector.
 
 ## Configure and verify
+
+Clone the repository with `git clone https://github.com/minifish-org/agentd-x-adapter.git`
+and enter it with `cd agentd-x-adapter`.
 
 Start from [configs/x-adapter.env.example](configs/x-adapter.env.example).
 Keep the populated file outside Git, mode 0600. Source it in the shell or use
@@ -75,7 +78,7 @@ Credentials are never logged; errors omit remote response bodies and headers.
 set -a
 . /path/to/private/x-adapter.env
 set +a
-cargo run --locked -- doctor jackysp
+cargo run --locked -- doctor your_owner_username
 ```
 
 Copy the returned numeric owner ID into `X_OWNER_ID`. `doctor` makes authenticated
@@ -92,12 +95,12 @@ search and fetch tools. It has no rolling context (each request contains its X
 context), a 30-minute timeout, four model steps and 512 output tokens per step.
 The model gateway must support native function calls and tool-result messages.
 Memory, artifacts, schedules, MCP and sandbox tools remain disabled.
-For the slow local model, deployed agentd uses `http_timeout_secs = 600`
+For a slow local model, one example configuration uses `http_timeout_secs = 600`
 (shared by its HTTP clients), and tailgate local requests allow 660 seconds.
-The local-ai execution timeout is 900 seconds. These are upper bounds;
+The inference service can enforce a 900-second execution timeout. These are upper bounds;
 a completed result returns immediately.
 
-Mention `@agentd_ai` from `@jackysp` **after** starting the adapter. In preview mode,
+Mention your configured bot from your configured owner account **after** starting the adapter. In preview mode,
 stop the process and inspect:
 
 ```sh
@@ -113,19 +116,19 @@ managed separately; this adapter does not delete agentd data.
 
 ## Deploy to Lightsail
 
-1. Ensure Tailscale can reach `https://minifish-lab.taila2cd17.ts.net` from singapore.
+1. Ensure Tailscale can reach `https://agentd.example.ts.net` from your VPS.
 2. Install populated configuration as `/etc/agentd-x-adapter.env` (root, mode 0600).
 3. Run `doctor` and `register` with this configuration before starting the service.
-4. Commit and push `main`, then run `bash deploy/update-vps.sh singapore`.
+4. Commit and push `main`, then run `bash deploy/update-vps.sh your-vps`.
 
 The deploy script builds with one job on the server, atomically switches the
 versioned binary, verifies the service, and rolls back the binary and unit on
 startup failure. It never overwrites credentials or registers an agent implicitly.
-Requires the Rust toolchain and authenticated Git access for a private repository.
+Requires the Rust toolchain and Git access to this repository.
 Service activation is not proof of API/vision success; inspect preview output.
 
 ```sh
-ssh singapore 'sudo journalctl -u agentd-x-adapter -n 80 --no-pager'
+ssh your-vps 'sudo journalctl -u agentd-x-adapter -n 80 --no-pager'
 ```
 
 After obtaining X's written AI-reply approval and verifying previews, set both
