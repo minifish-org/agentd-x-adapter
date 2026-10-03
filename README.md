@@ -92,9 +92,11 @@ cargo run --locked -- run
 `register` creates tenant `x-agentd` and agent `x-bot` only if absent; it preserves
 existing agents. The default agent uses `local/chat`, with read-only clock, public-web
 search and fetch tools. It has no rolling context (each request contains its X
-context), a 30-minute timeout, four model steps and 8,192 generation tokens per step.
+context), a 30-minute timeout and four model steps. It leaves `max_tokens` unset
+so the model service controls generation within its loaded context capacity.
 Generation tokens include reasoning as well as the final answer; the 140-character
-reply limit applies only to the final reply, not the model's reasoning budget.
+reply limit applies only to the final reply. Agentd must preserve an unset
+`max_tokens` rather than substituting its own default.
 The model gateway must support native function calls and tool-result messages.
 Memory, artifacts, schedules, MCP and sandbox tools remain disabled.
 For a slow local model with a 900-second execution timeout and a 60-second queue
